@@ -5,7 +5,6 @@ package com.gamegenetics.sparkrestclient;
  */
 public final class FailedSparkRequestException extends Exception {
 
-
     public FailedSparkRequestException(String message) {
         super(message);
     }

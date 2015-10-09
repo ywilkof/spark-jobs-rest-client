@@ -3,14 +3,12 @@ package com.gamegenetics.sparkrestclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -54,6 +52,17 @@ public final class SparkRestClient {
 
     private final HttpClient client = HttpClientBuilder.create().build();
 
+    /**
+     *
+     * @param appName name of your Spark job
+     * @param mainClass class containing the main() method which defines the Spark application driver and tasks
+     * @param appResource location of jar which contains application containing your <code>mainClass</code>
+     * @param appArgs args needed by the main() method of your <code>mainClass</code>
+     * @param jars other
+     * @return SubmissionId of task submitted to the Spark cluster, if submission was successful.
+     * Please note that a successful submission does not guarantee successful deployment of app.
+     * @throws FailedSparkRequestException iff submission failed
+     */
     public String submitJob(final String appName,
                             final String mainClass,
                             final String appResource,
@@ -78,9 +87,10 @@ public final class SparkRestClient {
                 .build();
 
         final String url = "http://" + masterUrl + "/v1/submissions/create";
-        final HttpPost post = new HttpPost(url);
 
+        final HttpPost post = new HttpPost(url);
         post.setHeader(HTTP.CONTENT_TYPE, MIME_TYPE_JSON_UTF_8);
+
         try {
             final String message = MAPPER.writeValueAsString(jobSubmitRequest);
             post.setEntity(new StringEntity(message));
@@ -88,47 +98,51 @@ public final class SparkRestClient {
             throw new FailedSparkRequestException(e);
         }
 
-        JobSubmitResponse response = null;
-        try {
-            final String stringResponse= client.execute(post,new BasicResponseHandler());
-             if (stringResponse!= null) {
-                 response = MAPPER.readValue(stringResponse,JobSubmitResponse.class);
-             } else {
-                 throw new FailedSparkRequestException("Recieved empty string response");
-             }
-        } catch (IOException e) {
-            throw new FailedSparkRequestException(e);
-        }
+        final JobSubmitResponse response = executeHttpMethodAndGetResponse(post, JobSubmitResponse.class);
 
-        if (!response.getSuccess()) {
-            throw new FailedSparkRequestException("Spark master failed submitting the job");
-        }
         return response.getSubmissionId();
     }
 
-    private String jars(String appResource, Set<String> jars) {
+    String jars(String appResource, Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());
-        Optional.ofNullable(jars).ifPresent(j ->output.addAll(j));
+        Optional.ofNullable(jars).ifPresent(j -> output.addAll(j));
         return String.join(",",output);
     }
 
     public void killJob(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
         final String url = "http://" + masterUrl + "/v1/submissions/kill/" + submissionId;
-        final SparkKillJobResponse response = new SparkKillJobResponse();
-        if (!response.getSuccess()) {
-            throw new FailedSparkRequestException("Spark master failed executing the kill.");
-        }
+        executeHttpMethodAndGetResponse(new HttpPost(url), SparkKillJobResponse.class);
     }
 
-    public String jobStatus(final String submissionId) throws FailedSparkRequestException {
+    public DriverState jobStatus(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
         final String url = "http://" + masterUrl + "/v1/submissions/status/" + submissionId;
-        final JobStatusResponse response = new JobStatusResponse();
+        final JobStatusResponse response = executeHttpMethodAndGetResponse(new HttpGet(url),JobStatusResponse.class);
         if (!response.getSuccess()) {
             throw new FailedSparkRequestException("Spark master failed executing the status request.");
         }
         return response.getDriverState();
+    }
+
+    private<T extends AbstractSparkResponse>  T executeHttpMethodAndGetResponse(HttpRequestBase httpRequest, Class<T> responseClass) throws FailedSparkRequestException {
+        T response;
+        try {
+            final String stringResponse = client.execute(httpRequest,new BasicResponseHandler());
+            if (stringResponse!= null) {
+                response = (T) MAPPER.readValue(stringResponse,responseClass);
+            } else {
+                throw new FailedSparkRequestException("Received empty string response");
+            }
+        } catch (IOException e) {
+            throw new FailedSparkRequestException(e);
+        }
+
+        if ( response == null || !response.getSuccess()) {
+            throw new FailedSparkRequestException("Spark master failed executing the kill.");
+        }
+
+        return response;
     }
 
     private void assertSubmissionId(final String submissionId) {
@@ -138,8 +152,5 @@ public final class SparkRestClient {
             throw new IllegalArgumentException("SubmissionId must be a non blank string");
         }
     }
-
-
-
 
 }

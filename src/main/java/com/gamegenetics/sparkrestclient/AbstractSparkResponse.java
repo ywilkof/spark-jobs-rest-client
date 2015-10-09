@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 abstract class AbstractSparkResponse {
 
-    public AbstractSparkResponse() {}
+    AbstractSparkResponse() {}
 
     protected String message;
 

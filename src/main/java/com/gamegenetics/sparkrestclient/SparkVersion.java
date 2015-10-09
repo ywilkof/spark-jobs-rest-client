@@ -8,7 +8,8 @@ import java.util.EnumSet;
 /**
  * Created by yonatan on 08.10.15.
  */
-enum  SparkVersion {
+enum SparkVersion {
+
     V1_5_0("1.5.0");
 
     private String version;
@@ -24,9 +25,9 @@ enum  SparkVersion {
 
     @JsonCreator
     public static SparkVersion fromVersion(final String version) {
-        for (SparkVersion daysDurations : EnumSet.allOf(SparkVersion.class)) {
-            if (daysDurations.getVersion().equals(version)) {
-                return daysDurations;
+        for (SparkVersion sparkVersion : EnumSet.allOf(SparkVersion.class)) {
+            if (sparkVersion.getVersion().equals(version)) {
+                return sparkVersion;
             }
         };
         throw new IllegalArgumentException("Invalid Spark version: " + version);

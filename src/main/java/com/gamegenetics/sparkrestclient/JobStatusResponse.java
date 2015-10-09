@@ -8,9 +8,11 @@ import lombok.Getter;
 @Getter
 class JobStatusResponse extends AbstractSparkResponse{
 
+    JobStatusResponse() {}
+
     private Action action;
 
-    private String driverState;
+    private DriverState driverState;
 
     private String workerHostPort;
 
