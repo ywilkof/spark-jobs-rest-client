@@ -1,0 +1,17 @@
+*.class
+*.classpath
+*.log
+log/
+
+# Package Files #
+#*.jar
+*.war
+*.ear
+/target
+
+.idea
+
+atlassian-ide-plugin.xml
+.idea/
+*.iml
+
