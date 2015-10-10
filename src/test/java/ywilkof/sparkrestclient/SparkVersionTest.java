@@ -1,11 +1,6 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 import org.junit.Test;
-
-import java.util.EnumSet;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by yonatan on 09.10.15.

@@ -1,4 +1,4 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 /**
  * Created by yonatan on 09.10.15.

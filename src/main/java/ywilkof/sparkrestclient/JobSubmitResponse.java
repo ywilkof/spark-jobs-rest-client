@@ -1,4 +1,4 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

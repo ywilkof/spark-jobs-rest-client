@@ -1,4 +1,4 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -139,7 +139,7 @@ public final class SparkRestClient {
         }
 
         if ( response == null || !response.getSuccess()) {
-            throw new FailedSparkRequestException("Spark master failed executing the kill.");
+            throw new FailedSparkRequestException("Spark master failed executing the request.");
         }
 
         return response;

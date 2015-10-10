@@ -1,4 +1,4 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 import lombok.Builder;
 

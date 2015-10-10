@@ -1,4 +1,4 @@
-package com.gamegenetics.sparkrestclient;
+package ywilkof.sparkrestclient;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -7,13 +7,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
 
 
