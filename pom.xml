@@ -4,13 +4,39 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ywilkof.sparkrestclient</groupId>
+    <groupId>com.ywilkof.spark-jobs-rest-client</groupId>
     <artifactId>spark-rest-client</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Spark Jobs Rest Client</name>
+    <description>Utility client for interacting with Spark Standalone Mode's Rest API for submitting, killing and monitoring the state of jobs.</description>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Yonatan Wilkof</name>
+            <email>ywilkof@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client.git</connection>
+        <developerConnection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client.git</developerConnection>
+        <url>git@github.com:ywilkof/spark-jobs-rest-client.git</url>
+    </scm>
 
     <properties>
         <lombok.version>1.16.4</lombok.version>
         <java.version>1.8</java.version>
+        <jackson-databdind.version>2.6.1</jackson-databdind.version>
+        <httpclient.version>4.3.2</httpclient.version>
     </properties>
 
     <build>
@@ -24,6 +50,49 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- Bundle sources during verify phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generating Javadoc during verify phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludePackageNames>*.support</excludePackageNames>
+                </configuration>
+            </plugin>
+
+            <!-- Releasing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -36,15 +105,15 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.6.1</version>
+            <version>${jackson-databdind.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.2</version>
+            <version>${httpclient.version}</version>
         </dependency>
 
-
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -77,6 +146,38 @@
         </dependency>
 
     </dependencies>
+
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
 
 
 </project>

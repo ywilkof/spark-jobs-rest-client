@@ -54,14 +54,14 @@ public final class SparkRestClient {
 
     /**
      *
-     * @param appName name of your Spark job
-     * @param mainClass class containing the main() method which defines the Spark application driver and tasks
-     * @param appResource location of jar which contains application containing your <code>mainClass</code>
-     * @param appArgs args needed by the main() method of your <code>mainClass</code>
-     * @param jars other
+     * @param appName name of your Spark job.
+     * @param mainClass class containing the main() method which defines the Spark application driver and tasks.
+     * @param appResource location of jar which contains application containing your <code>mainClass</code>.
+     * @param appArgs args needed by the main() method of your <code>mainClass</code>.
+     * @param jars other jars needed by the application and not supplied within the app or classpath.
      * @return SubmissionId of task submitted to the Spark cluster, if submission was successful.
      * Please note that a successful submission does not guarantee successful deployment of app.
-     * @throws FailedSparkRequestException iff submission failed
+     * @throws FailedSparkRequestException iff submission failed..
      */
     public String submitJob(final String appName,
                             final String mainClass,
@@ -109,19 +109,29 @@ public final class SparkRestClient {
         return String.join(",",output);
     }
 
+    /**
+     * Submits a kill request for an existing Driver Application.
+     * @param submissionId Id of submitted job to submit a kill request for.
+     * @throws FailedSparkRequestException Request to Spark server failed,
+     * or the Spark Server could not kill the requested app.
+     */
     public void killJob(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
         final String url = "http://" + masterUrl + "/v1/submissions/kill/" + submissionId;
         executeHttpMethodAndGetResponse(new HttpPost(url), SparkKillJobResponse.class);
     }
 
+    /**
+     * Gets the status of an existing Driver Application
+     * @param submissionId Id of submitted job to request status for.
+     * @return State of the application
+     * @throws FailedSparkRequestException Request to Spark server failed,
+     * or the Spark Server could not retrieve the status of the requested app.
+     */
     public DriverState jobStatus(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
         final String url = "http://" + masterUrl + "/v1/submissions/status/" + submissionId;
         final JobStatusResponse response = executeHttpMethodAndGetResponse(new HttpGet(url),JobStatusResponse.class);
-        if (!response.getSuccess()) {
-            throw new FailedSparkRequestException("Spark master failed executing the status request.");
-        }
         return response.getDriverState();
     }
 
