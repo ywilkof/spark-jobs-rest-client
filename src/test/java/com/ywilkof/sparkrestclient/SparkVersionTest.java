@@ -1,4 +1,4 @@
-package ywilkof.sparkrestclient;
+package com.ywilkof.sparkrestclient;
 
 import org.junit.Test;
 

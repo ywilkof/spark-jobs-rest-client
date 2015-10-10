@@ -1,4 +1,4 @@
-package ywilkof.sparkrestclient;
+package com.ywilkof.sparkrestclient;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -7,14 +7,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
-import org.mockserver.model.Delay;
 import org.mockserver.model.Header;
-import org.mockserver.model.Parameter;
 
 import java.util.Collections;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;

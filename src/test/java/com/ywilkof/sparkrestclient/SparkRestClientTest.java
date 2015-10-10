@@ -1,12 +1,8 @@
-package ywilkof.sparkrestclient;
+package com.ywilkof.sparkrestclient;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
