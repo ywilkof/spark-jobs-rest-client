@@ -38,12 +38,10 @@ public class SparkRestClientMockServerTest {
 
     @Before
     public void setUp() {
-        this.sparkRestClient = new SparkRestClient();
-        sparkRestClient.setSparkVersion(SparkVersion.V1_5_0);
-        sparkRestClient.setMasterUrl("localhost:" + mockServerRule.getHttpPort());
-        sparkRestClient.setSupervise(false);
-        sparkRestClient.setEventLogDisabled(Boolean.TRUE);
-        sparkRestClient.setEnvironmentVariables(Collections.emptyMap());
+        this.sparkRestClient = SparkRestClient.builder()
+                .masterHost("localhost")
+                .masterPort(mockServerRule.getHttpPort())
+        .build();
     }
 
     @Test

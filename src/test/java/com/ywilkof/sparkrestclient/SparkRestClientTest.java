@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.equalTo;
  */
 public class SparkRestClientTest {
 
-    private SparkRestClient sparkRestClient = new SparkRestClient();
+    private SparkRestClient sparkRestClient = SparkRestClient.builder().build();
 
     @Test
     public void testJars_WhenMultipleJarsSupplied_ThenReturnCommaSeparatedStringOfJars() {

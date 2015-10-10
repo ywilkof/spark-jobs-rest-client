@@ -3,6 +3,7 @@ package com.ywilkof.sparkrestclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.HttpClient;
@@ -12,14 +13,12 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,24 +33,29 @@ public final class SparkRestClient {
 
     private SparkVersion sparkVersion;
 
-    private Boolean supervise;
+    private Integer masterPort;
 
-    private String masterUrl;
-
-    private Map<String,String> environmentVariables;
+    private String masterHost;
 
     private Boolean eventLogDisabled;
 
+    private Boolean supervise;
+
+    private Map<String,String> environmentVariables;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private static final Integer SPARK_PORT = 6066;
     private static final String CONTENT_TYPE_HEADER = "content-type";
     private static final String MIME_TYPE_JSON = "application/json";
     private static final String DEPLOY_MODE_CLUSTER = "cluster";
     private static final String CHARSET_UTF_8 = "charset=UTF-8";
     private static final String MIME_TYPE_JSON_UTF_8 = MIME_TYPE_JSON + ";" + CHARSET_UTF_8;
 
-    private final HttpClient client = HttpClientBuilder.create().build();
-
+    private final HttpClient client = HttpClientBuilder.create()
+            .setConnectionManager(new BasicHttpClientConnectionManager())
+            .build();
+    
     /**
      *
      * @param appName name of your Spark job.
@@ -81,12 +85,12 @@ public final class SparkRestClient {
                                 .appName(appName)
                                 .eventLogEnabled(eventLogDisabled)
                                 .driverSupervise(supervise)
-                                .master(masterUrl)
+                                .master(getMasterUrl())
                                 .build()
                 )
                 .build();
 
-        final String url = "http://" + masterUrl + "/v1/submissions/create";
+        final String url = "http://" + getMasterUrl() + "/v1/submissions/create";
 
         final HttpPost post = new HttpPost(url);
         post.setHeader(HTTP.CONTENT_TYPE, MIME_TYPE_JSON_UTF_8);
@@ -106,7 +110,7 @@ public final class SparkRestClient {
     String jars(String appResource, Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());
         Optional.ofNullable(jars).ifPresent(j -> output.addAll(j));
-        return String.join(",",output);
+        return String.join(",", output);
     }
 
     /**
@@ -117,7 +121,7 @@ public final class SparkRestClient {
      */
     public void killJob(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
-        final String url = "http://" + masterUrl + "/v1/submissions/kill/" + submissionId;
+        final String url = "http://" + getMasterUrl() + "/v1/submissions/kill/" + submissionId;
         executeHttpMethodAndGetResponse(new HttpPost(url), SparkKillJobResponse.class);
     }
 
@@ -130,7 +134,7 @@ public final class SparkRestClient {
      */
     public DriverState jobStatus(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
-        final String url = "http://" + masterUrl + "/v1/submissions/status/" + submissionId;
+        final String url = "http://" + getMasterUrl() + "/v1/submissions/status/" + submissionId;
         final JobStatusResponse response = executeHttpMethodAndGetResponse(new HttpGet(url),JobStatusResponse.class);
         return response.getDriverState();
     }
@@ -146,6 +150,8 @@ public final class SparkRestClient {
             }
         } catch (IOException e) {
             throw new FailedSparkRequestException(e);
+        } finally {
+            httpRequest.releaseConnection();
         }
 
         if ( response == null || !response.getSuccess()) {
@@ -163,4 +169,68 @@ public final class SparkRestClient {
         }
     }
 
+    private String getMasterUrl() {
+        return masterHost + ":" + masterPort;
+    }
+
+    public static SparkRestClientBuilder builder() {
+        return new SparkRestClientBuilder();
+    }
+
+    public static class SparkRestClientBuilder {
+        private SparkVersion sparkVersion = SparkVersion.V1_5_0;
+        private Integer masterPort = SPARK_PORT;
+        private String masterHost;
+        private Boolean eventLogDisabled = Boolean.TRUE;
+        private Boolean supervise = Boolean.FALSE;
+        private Map<String,String> environmentVariables = Collections.emptyMap();
+
+        private SparkRestClientBuilder() {
+        }
+
+        public static SparkRestClientBuilder aSparkRestClient() {
+            return new SparkRestClientBuilder();
+        }
+
+        public SparkRestClientBuilder sparkVersion(SparkVersion sparkVersion) {
+            this.sparkVersion = sparkVersion;
+            return this;
+        }
+
+        public SparkRestClientBuilder masterPort(Integer masterPort) {
+            this.masterPort = masterPort;
+            return this;
+        }
+
+        public SparkRestClientBuilder masterHost(String masterHost) {
+            this.masterHost = masterHost;
+            return this;
+        }
+
+        public SparkRestClientBuilder eventLogDisabled(Boolean eventLogDisabled) {
+            this.eventLogDisabled = eventLogDisabled;
+            return this;
+        }
+
+        public SparkRestClientBuilder supervise(Boolean supervise) {
+            this.supervise = supervise;
+            return this;
+        }
+
+        public SparkRestClientBuilder environmentVariables(Map<String, String> environmentVariables) {
+            this.environmentVariables = environmentVariables;
+            return this;
+        }
+
+        public SparkRestClient build() {
+            SparkRestClient sparkRestClient = new SparkRestClient();
+            sparkRestClient.setSparkVersion(sparkVersion);
+            sparkRestClient.setMasterPort(masterPort);
+            sparkRestClient.setMasterHost(masterHost);
+            sparkRestClient.setEventLogDisabled(eventLogDisabled);
+            sparkRestClient.setSupervise(supervise);
+            sparkRestClient.setEnvironmentVariables(environmentVariables);
+            return sparkRestClient;
+        }
+    }
 }
