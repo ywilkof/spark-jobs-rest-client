@@ -6,11 +6,9 @@ import lombok.Getter;
  * Created by yonatan on 08.10.15.
  */
 @Getter
-class JobStatusResponse extends AbstractSparkResponse{
+class JobStatusResponse extends SparkResponse {
 
     JobStatusResponse() {}
-
-    private Action action;
 
     private DriverState driverState;
 

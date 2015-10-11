@@ -5,6 +5,7 @@ package com.ywilkof.sparkrestclient;
  */
 enum Action {
     CreateSubmissionRequest,
+    CreateSubmissionResponse,
     KillSubmissionResponse,
     SubmissionStatusResponse
 }

@@ -1,14 +1,18 @@
 package com.ywilkof.sparkrestclient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 
 /**
  * Created by yonatan on 08.10.15.
  */
 @Getter
-abstract class AbstractSparkResponse {
+@JsonIgnoreProperties(ignoreUnknown = true)
+class SparkResponse {
 
-    AbstractSparkResponse() {}
+    SparkResponse() {}
+
+    private Action action;
 
     protected String message;
 

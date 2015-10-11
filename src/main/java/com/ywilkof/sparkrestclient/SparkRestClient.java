@@ -3,7 +3,6 @@ package com.ywilkof.sparkrestclient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.HttpClient;
@@ -99,7 +98,7 @@ public final class SparkRestClient {
             throw new FailedSparkRequestException(e);
         }
 
-        final JobSubmitResponse response = executeHttpMethodAndGetResponse(post, JobSubmitResponse.class);
+        final SparkResponse response = executeHttpMethodAndGetResponse(post, SparkResponse.class);
 
         return response.getSubmissionId();
     }
@@ -119,7 +118,7 @@ public final class SparkRestClient {
     public void killJob(final String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
         final String url = "http://" + getMasterUrl() + "/v1/submissions/kill/" + submissionId;
-        executeHttpMethodAndGetResponse(new HttpPost(url), SparkKillJobResponse.class);
+        executeHttpMethodAndGetResponse(new HttpPost(url), SparkResponse.class);
     }
 
     /**
@@ -136,7 +135,7 @@ public final class SparkRestClient {
         return response.getDriverState();
     }
 
-    private<T extends AbstractSparkResponse>  T executeHttpMethodAndGetResponse(HttpRequestBase httpRequest, Class<T> responseClass) throws FailedSparkRequestException {
+    private<T extends SparkResponse>  T executeHttpMethodAndGetResponse(HttpRequestBase httpRequest, Class<T> responseClass) throws FailedSparkRequestException {
         T response;
         try {
             final String stringResponse = client.execute(httpRequest,new BasicResponseHandler());
