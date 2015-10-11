@@ -1,9 +1,7 @@
-package com.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by yonatan on 11.10.15.

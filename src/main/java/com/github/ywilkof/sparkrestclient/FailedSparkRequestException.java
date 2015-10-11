@@ -1,4 +1,4 @@
-package com.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient;
 
 /**
  * Created by yonatan on 08.10.15.

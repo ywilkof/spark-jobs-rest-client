@@ -1,4 +1,4 @@
-package com.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

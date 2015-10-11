@@ -1,4 +1,4 @@
-package com.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
