@@ -45,17 +45,14 @@ public final class SparkRestClient {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final Integer SPARK_PORT = 6066;
     private static final String CONTENT_TYPE_HEADER = "content-type";
     private static final String MIME_TYPE_JSON = "application/json";
     private static final String DEPLOY_MODE_CLUSTER = "cluster";
     private static final String CHARSET_UTF_8 = "charset=UTF-8";
     private static final String MIME_TYPE_JSON_UTF_8 = MIME_TYPE_JSON + ";" + CHARSET_UTF_8;
 
-    private final HttpClient client = HttpClientBuilder.create()
-            .setConnectionManager(new BasicHttpClientConnectionManager())
-            .build();
-    
+    private HttpClient client;
+
     /**
      *
      * @param appName name of your Spark job.
@@ -179,17 +176,18 @@ public final class SparkRestClient {
 
     public static class SparkRestClientBuilder {
         private SparkVersion sparkVersion = SparkVersion.V1_5_0;
-        private Integer masterPort = SPARK_PORT;
+        private Integer masterPort;
         private String masterHost;
         private Boolean eventLogDisabled = Boolean.TRUE;
         private Boolean supervise = Boolean.FALSE;
         private Map<String,String> environmentVariables = Collections.emptyMap();
 
-        private SparkRestClientBuilder() {
-        }
+        private HttpClient client = HttpClientBuilder.create()
+                .setConnectionManager(new BasicHttpClientConnectionManager())
+                .build();
 
-        public static SparkRestClientBuilder aSparkRestClient() {
-            return new SparkRestClientBuilder();
+
+        private SparkRestClientBuilder() {
         }
 
         public SparkRestClientBuilder sparkVersion(SparkVersion sparkVersion) {
@@ -222,7 +220,19 @@ public final class SparkRestClient {
             return this;
         }
 
+        public SparkRestClientBuilder httpClient(HttpClient httpClient) {
+            this.client = httpClient;
+            return this;
+        }
+
         public SparkRestClient build() {
+            if (masterHost == null ||
+                    masterPort == null) {
+                throw new IllegalArgumentException("master host and port must be set.");
+            }
+            if (client == null) {
+                throw new IllegalArgumentException("http client cannot be null.");
+            }
             SparkRestClient sparkRestClient = new SparkRestClient();
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
@@ -230,6 +240,7 @@ public final class SparkRestClient {
             sparkRestClient.setEventLogDisabled(eventLogDisabled);
             sparkRestClient.setSupervise(supervise);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
+            sparkRestClient.setClient(client);
             return sparkRestClient;
         }
     }
