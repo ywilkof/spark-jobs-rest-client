@@ -166,6 +166,35 @@ public class SparkRestClientMockServerTest {
         Assert.assertThat(sparkRestClient.jobStatus(submissionId), equalTo(DriverState.FINISHED));
     }
 
+    @Test
+    public void testJobStatus_WhenDriverStateNotEnumValue_thenThrowException() throws Exception {
+        final String submissionId = UUID.randomUUID().toString();
+        final String responseBody = "{\n" +
+                "  \"action\" : \"SubmissionStatusResponse\",\n" +
+                "  \"driverState\" : \"HIBERNATING\",\n" +
+                "  \"serverSparkVersion\" : \"1.5.0\",\n" +
+                "  \"submissionId\" : \"driver-" + submissionId + "\",\n" +
+                "  \"success\" : true,\n" +
+                "  \"workerHostPort\" : \"192.168.3.153:46894\",\n" +
+                "  \"workerId\" : \"worker-20151007093409-192.168.3.153-46894\"\n" +
+                "}";
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/v1/submissions/status/" + submissionId),
+                        exactly(1)
+                )
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withBody(responseBody)
+                );
+        exception.expect(FailedSparkRequestException.class);
+        exception.expectMessage(containsString("Spark server responded with different values than expected."));
+        sparkRestClient.jobStatus(submissionId);
+    }
+
     private String submitJob() throws FailedSparkRequestException {
         return sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar", Collections.emptyList(), Collections.emptySet());
     }
