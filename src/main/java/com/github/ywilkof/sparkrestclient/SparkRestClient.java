@@ -58,7 +58,8 @@ public final class SparkRestClient {
      * @param appName name of your Spark job.
      * @param mainClass class containing the main() method which defines the Spark application driver and tasks.
      * @param appResource location of jar which contains application containing your <code>mainClass</code>.
-     * @return
+     * @return SubmissionId of task submitted to the Spark cluster, if submission was successful.
+     * Please note that a successful submission does not guarantee successful deployment of app.
      * @throws FailedSparkRequestException
      */
     public String submitJob(final String appName,
