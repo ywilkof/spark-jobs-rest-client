@@ -54,7 +54,21 @@ public final class SparkRestClient {
     private HttpClient client;
 
     /**
-     *
+     * Submit a new spark job with no command line args and no additional jars to the Spark Standalone cluster.
+     * @param appName name of your Spark job.
+     * @param mainClass class containing the main() method which defines the Spark application driver and tasks.
+     * @param appResource location of jar which contains application containing your <code>mainClass</code>.
+     * @return
+     * @throws FailedSparkRequestException
+     */
+    public String submitJob(final String appName,
+                            final String mainClass,
+                            final String appResource) throws FailedSparkRequestException {
+        return submitJob(appName,mainClass,appResource,null,null);
+    }
+
+    /**
+     * Submit a new spark job to the Spark Standalone cluster.
      * @param appName name of your Spark job.
      * @param mainClass class containing the main() method which defines the Spark application driver and tasks.
      * @param appResource location of jar which contains application containing your <code>mainClass</code>.
@@ -69,9 +83,12 @@ public final class SparkRestClient {
                             final String appResource,
                             final List<String> appArgs,
                             final Set<String> jars) throws FailedSparkRequestException {
+        if (mainClass == null || appResource  == null) {
+            throw new IllegalArgumentException("mainClass and appResource values must not be null");
+        }
         final JobSubmitRequest jobSubmitRequest = JobSubmitRequest.builder()
                 .action(Action.CreateSubmissionRequest)
-                .appArgs(appArgs)
+                .appArgs((appArgs == null) ? Collections.emptyList() : appArgs)
                 .appResource(appResource)
                 .clientSparkVersion(sparkVersion.toString())
                 .mainClass(mainClass)
@@ -104,7 +121,7 @@ public final class SparkRestClient {
         return response.getSubmissionId();
     }
 
-    String jars(String appResource, Set<String> jars) {
+    String jars(final String appResource, final Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());
         Optional.ofNullable(jars).ifPresent(j -> output.addAll(j));
         return String.join(",", output);
@@ -178,7 +195,7 @@ public final class SparkRestClient {
 
     public static class SparkRestClientBuilder {
         private SparkVersion sparkVersion = SparkVersion.V1_5_0;
-        private Integer masterPort;
+        private Integer masterPort = 6066;
         private String masterHost;
         private Boolean eventLogDisabled = Boolean.TRUE;
         private Boolean supervise = Boolean.FALSE;

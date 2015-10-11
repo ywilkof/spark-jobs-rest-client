@@ -45,7 +45,18 @@ public class SparkRestClientMockServerTest {
     }
 
     @Test
-    public void testSubmitJob() throws Exception {
+    public void testSubmitJob_WhenArgsAndJarsSupplied() throws Exception {
+        mockServerJobSumbit();
+        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar", Collections.emptyList(), Collections.emptySet());
+    }
+
+    @Test
+    public void testSubmitJob_WhenArgsAndJarsNotSupplied() throws FailedSparkRequestException {
+        mockServerJobSumbit();
+        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar");
+    }
+
+    private void mockServerJobSumbit() {
         final String requestBody = "{ \"action\" : \"CreateSubmissionRequest\",\n" +
                 "  \"appArgs\" : [],\n" +
                 "  \"appResource\" : \"file:/path/to/jar\",\n" +
@@ -80,7 +91,6 @@ public class SparkRestClientMockServerTest {
                                 .withStatusCode(200)
                                 .withBody(responseBody)
                 );
-        submitJob();
     }
 
 
@@ -195,7 +205,4 @@ public class SparkRestClientMockServerTest {
         sparkRestClient.jobStatus(submissionId);
     }
 
-    private String submitJob() throws FailedSparkRequestException {
-        return sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar", Collections.emptyList(), Collections.emptySet());
-    }
 }

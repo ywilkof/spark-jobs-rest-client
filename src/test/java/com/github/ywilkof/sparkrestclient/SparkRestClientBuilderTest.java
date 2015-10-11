@@ -22,12 +22,6 @@ public class SparkRestClientBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testBuild_WhenPortNotSet_ThenThrowException() throws Exception {
-        builder.masterHost("localhost");
-        builder.build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testBuild_WhenClientIsNull_ThenThrowException() throws Exception {
         builder.masterHost("localhost");
         builder.masterPort(6066);
