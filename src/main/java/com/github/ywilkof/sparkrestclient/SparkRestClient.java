@@ -124,7 +124,7 @@ public class SparkRestClient {
     String jars(final String appResource, final Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());
         Optional.ofNullable(jars).ifPresent(j -> output.addAll(j));
-        return String.join(",", output);
+        return String.join(",", new TreeSet<CharSequence>(output));
     }
 
     /**
