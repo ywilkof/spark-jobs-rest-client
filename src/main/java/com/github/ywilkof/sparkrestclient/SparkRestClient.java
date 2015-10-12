@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  */
 @Setter(AccessLevel.PACKAGE)
 @Getter(AccessLevel.PUBLIC)
-public final class SparkRestClient {
+public class SparkRestClient {
 
     SparkRestClient() {}
 
