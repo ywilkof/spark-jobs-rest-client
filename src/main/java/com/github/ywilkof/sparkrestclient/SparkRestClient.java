@@ -41,6 +41,8 @@ public class SparkRestClient {
 
     private Boolean supervise;
 
+    private ClusterMode clusterMode;
+
     private Map<String,String> environmentVariables;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -100,7 +102,7 @@ public class SparkRestClient {
                                 .appName(appName)
                                 .eventLogEnabled(eventLogDisabled)
                                 .driverSupervise(supervise)
-                                .master(getMasterUrl())
+                                .master(clusterMode + "://" + getMasterUrl())
                                 .build()
                 )
                 .build();
@@ -200,6 +202,8 @@ public class SparkRestClient {
         private String masterHost;
         private Boolean eventLogDisabled = Boolean.TRUE;
         private Boolean supervise = Boolean.FALSE;
+        private ClusterMode clusterMode = ClusterMode.spark;
+
         private Map<String,String> environmentVariables = Collections.emptyMap();
 
         private HttpClient client = HttpClientBuilder.create()
@@ -235,6 +239,11 @@ public class SparkRestClient {
             return this;
         }
 
+        public SparkRestClientBuilder clusterMode(ClusterMode clusterMode) {
+            this.clusterMode = clusterMode;
+            return this;
+        }
+
         public SparkRestClientBuilder environmentVariables(Map<String, String> environmentVariables) {
             this.environmentVariables = environmentVariables;
             return this;
@@ -261,6 +270,7 @@ public class SparkRestClient {
             sparkRestClient.setSupervise(supervise);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
             sparkRestClient.setClient(client);
+            sparkRestClient.setClusterMode(clusterMode);
             return sparkRestClient;
         }
     }
