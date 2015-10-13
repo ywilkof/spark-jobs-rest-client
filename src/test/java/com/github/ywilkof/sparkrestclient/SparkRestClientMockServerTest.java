@@ -9,8 +9,9 @@ import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
 import org.mockserver.model.Header;
 
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;
@@ -18,7 +19,6 @@ import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.JsonBody.json;
-import static org.mockserver.model.StringBody.exact;
 
 
 /**
@@ -46,29 +46,41 @@ public class SparkRestClientMockServerTest {
 
     @Test
     public void testSubmitJob_WhenArgsAndJarsSupplied() throws Exception {
-        mockServerJobSumbit();
-        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar", Collections.emptyList(), Collections.emptySet());
+        final List<String> appArgs = Stream.of("A","B","C").collect(Collectors.toList());
+        final Set<String> jars = Stream.of("/path/to/additional/jar/A.jar"
+                ,"/path/to/additional/jar/B.jar")
+                .collect(Collectors.toSet());
+
+        mockServerJobSumbit(appArgs,jars);
+        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar",appArgs,jars);
     }
 
     @Test
     public void testSubmitJob_WhenArgsAndJarsNotSupplied() throws FailedSparkRequestException {
-        mockServerJobSumbit();
+        mockServerJobSumbit(Collections.emptyList(),Collections.emptySet());
         sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar");
     }
 
-    private void mockServerJobSumbit() {
-        final String requestBody = "{ \"action\" : \"CreateSubmissionRequest\",\n" +
-                "  \"appArgs\" : [],\n" +
-                "  \"appResource\" : \"file:/path/to/jar\",\n" +
-                "  \"clientSparkVersion\" : \"1.5.0\",\n" +
-                "  \"environmentVariables\" : {},\n" +
-                "  \"mainClass\" : \"org.apache.spark.examples.SparkPi\",\n" +
-                "  \"sparkProperties\" : { \"spark.app.name\" : \"SparkPiJob\",\n" +
-                "      \"spark.driver.supervise\" : false,\n" +
-                "      \"spark.eventLog.enabled\" : true,\n" +
-                "      \"spark.jars\" : \"file:/path/to/jar\",\n" +
-                "      \"spark.master\" : \"localhost:" + mockServerRule.getHttpPort() + "\" \n" +
-                "    }\n" +
+    private void mockServerJobSumbit(final List<String> appArgs, final Set<String> jars) {
+        final Set<String> allJars = new TreeSet<>(jars);
+        allJars.add("file:/path/to/jar");
+
+        final String requestBody = "{\n" +
+                "  \"action\": \"CreateSubmissionRequest\",\n" +
+                "  \"appResource\": \"file:/path/to/jar\",\n" +
+                "  \"appArgs\": [\n" + String.join(",", appArgs) + "],\n" +
+                "  \"clientSparkVersion\": \"1.5.0\",\n" +
+                "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
+                "  \"environmentVariables\": {\n" +
+                "    \n" +
+                "  },\n" +
+                "  \"sparkProperties\": {\n" +
+                "    \"spark.jars\": \""+  String.join(",",allJars) + "\",\n" +
+                "    \"spark.app.name\": \"SparkPiJob\",\n" +
+                "    \"spark.master\": \"localhost:"+ mockServerRule.getHttpPort() + "\",\n" +
+                "    \"spark.eventLog.enabled\": true,\n" +
+                "    \"spark.driver.supervise\": false\n" +
+                "  }\n" +
                 "}";
         final String responseBody = "{\n" +
                 "  \"action\" : \"CreateSubmissionResponse\",\n" +
