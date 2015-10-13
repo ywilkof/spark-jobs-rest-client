@@ -27,9 +27,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client.git</connection>
-        <developerConnection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client.git</developerConnection>
-        <url>git@github.com:ywilkof/spark-jobs-rest-client.git</url>
+        <url>https://github.com/ywilkof/spark-jobs-rest-client</url>
+        <connection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client</connection>
+        <developerConnection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client</developerConnection>
     </scm>
 
     <properties>
@@ -88,6 +88,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.2</version>
+                <configuration>
+                    <releaseProfiles>release-sign-artifacts</releaseProfiles>
+                </configuration>
             </plugin>
 
         </plugins>
@@ -148,14 +151,14 @@
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
+            <!--<activation>-->
+                <!--<property>-->
+                    <!--<name>performRelease</name>-->
+                    <!--<value>true</value>-->
+                <!--</property>-->
+            <!--</activation>-->
             <distributionManagement>
-            <snapshotRepository>
+                <snapshotRepository>
                     <id>ossrh</id>
                     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
