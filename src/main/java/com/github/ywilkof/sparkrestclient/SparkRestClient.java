@@ -37,7 +37,7 @@ public class SparkRestClient {
 
     private String masterHost;
 
-    private Boolean eventLogDisabled;
+    private Boolean eventLogEnabled;
 
     private Boolean supervise;
 
@@ -100,7 +100,7 @@ public class SparkRestClient {
                         JobSubmitRequest.SparkProperties.builder()
                                 .jars(jars(appResource, jars))
                                 .appName(appName)
-                                .eventLogEnabled(eventLogDisabled)
+                                .eventLogEnabled(eventLogEnabled)
                                 .driverSupervise(supervise)
                                 .master(clusterMode + "://" + getMasterUrl())
                                 .build()
@@ -200,7 +200,7 @@ public class SparkRestClient {
         private SparkVersion sparkVersion = SparkVersion.V1_5_0;
         private Integer masterPort = 6066;
         private String masterHost;
-        private Boolean eventLogDisabled = Boolean.TRUE;
+        private Boolean eventLogEnabled = Boolean.FALSE;
         private Boolean supervise = Boolean.FALSE;
         private ClusterMode clusterMode = ClusterMode.spark;
 
@@ -229,8 +229,8 @@ public class SparkRestClient {
             return this;
         }
 
-        public SparkRestClientBuilder eventLogDisabled(Boolean eventLogDisabled) {
-            this.eventLogDisabled = eventLogDisabled;
+        public SparkRestClientBuilder eventLogEnabled(Boolean eventLogEnabled) {
+            this.eventLogEnabled = eventLogEnabled;
             return this;
         }
 
@@ -266,7 +266,7 @@ public class SparkRestClient {
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
             sparkRestClient.setMasterHost(masterHost);
-            sparkRestClient.setEventLogDisabled(eventLogDisabled);
+            sparkRestClient.setEventLogEnabled(eventLogEnabled);
             sparkRestClient.setSupervise(supervise);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
             sparkRestClient.setClient(client);

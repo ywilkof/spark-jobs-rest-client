@@ -78,7 +78,7 @@ public class SparkRestClientMockServerTest {
                 "    \"spark.jars\": \""+  String.join(",",allJars) + "\",\n" +
                 "    \"spark.app.name\": \"SparkPiJob\",\n" +
                 "    \"spark.master\": \"spark://localhost:"+ mockServerRule.getHttpPort() + "\",\n" +
-                "    \"spark.eventLog.enabled\": true,\n" +
+                "    \"spark.eventLog.enabled\": false,\n" +
                 "    \"spark.driver.supervise\": false\n" +
                 "  }\n" +
                 "}";
