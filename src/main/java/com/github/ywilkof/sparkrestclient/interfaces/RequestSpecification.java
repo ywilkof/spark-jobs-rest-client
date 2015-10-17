@@ -1,4 +1,4 @@
-package com.github.ywilkof.sparkrestclient;
+package com.github.ywilkof.sparkrestclient.interfaces;
 
 /**
  * Created by yonatan on 17.10.15.
