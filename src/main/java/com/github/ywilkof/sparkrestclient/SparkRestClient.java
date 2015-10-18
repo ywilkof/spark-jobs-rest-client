@@ -3,7 +3,7 @@ package com.github.ywilkof.sparkrestclient;
 import com.github.ywilkof.sparkrestclient.interfaces.JobStatusRequestSpecification;
 import com.github.ywilkof.sparkrestclient.interfaces.JobSubmitRequestSpecification;
 import com.github.ywilkof.sparkrestclient.interfaces.KillJobRequestSpecification;
-import com.github.ywilkof.sparkrestclient.interfaces.RequestSpecification;
+import com.github.ywilkof.sparkrestclient.interfaces.RequestOptionsSpecification;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +18,7 @@ import java.util.*;
  */
 @Setter(AccessLevel.PACKAGE)
 @Getter(AccessLevel.PUBLIC)
-public class SparkRestClient implements RequestSpecification {
+public class SparkRestClient implements RequestOptionsSpecification {
 
     SparkRestClient() {}
 
@@ -27,10 +27,6 @@ public class SparkRestClient implements RequestSpecification {
     private Integer masterPort;
 
     private String masterHost;
-
-    private Boolean eventLogEnabled;
-
-    private Boolean supervise;
 
     private ClusterMode clusterMode;
 
@@ -50,7 +46,7 @@ public class SparkRestClient implements RequestSpecification {
 
     @Override
     public JobSubmitRequestSpecification prepareJobSubmit() {
-        return null;
+        return new JobSubmitRequestSpecificationImpl(this);
     }
 
     @Override
@@ -67,8 +63,6 @@ public class SparkRestClient implements RequestSpecification {
         private SparkVersion sparkVersion = SparkVersion.V1_5_0;
         private Integer masterPort = 6066;
         private String masterHost;
-        private Boolean eventLogEnabled = Boolean.FALSE;
-        private Boolean supervise = Boolean.FALSE;
         private ClusterMode clusterMode = ClusterMode.spark;
 
         private Map<String,String> environmentVariables = Collections.emptyMap();
@@ -93,16 +87,6 @@ public class SparkRestClient implements RequestSpecification {
 
         public SparkRestClientBuilder masterHost(String masterHost) {
             this.masterHost = masterHost;
-            return this;
-        }
-
-        public SparkRestClientBuilder eventLogEnabled(Boolean eventLogEnabled) {
-            this.eventLogEnabled = eventLogEnabled;
-            return this;
-        }
-
-        public SparkRestClientBuilder supervise(Boolean supervise) {
-            this.supervise = supervise;
             return this;
         }
 
@@ -133,8 +117,6 @@ public class SparkRestClient implements RequestSpecification {
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
             sparkRestClient.setMasterHost(masterHost);
-            sparkRestClient.setEventLogEnabled(eventLogEnabled);
-            sparkRestClient.setSupervise(supervise);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
             sparkRestClient.setClient(client);
             sparkRestClient.setClusterMode(clusterMode);

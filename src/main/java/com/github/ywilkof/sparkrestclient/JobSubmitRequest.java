@@ -32,7 +32,7 @@ class JobSubmitRequest {
 
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class SparkProperties {
+    static class SparkProperties {
 
         @JsonProperty(value = "spark.jars")
         private String jars;
