@@ -1,9 +1,6 @@
 package com.github.ywilkof.sparkrestclient;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
@@ -51,17 +48,46 @@ public class SparkRestClientMockServerTest {
                 ,"/path/to/additional/jar/B.jar")
                 .collect(Collectors.toSet());
 
-        mockServerJobSumbit(appArgs,jars);
-        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar",appArgs,jars);
+        mockServerJobSubmit(appArgs, jars);
+        sparkRestClient.prepareJobSubmit()
+                .appArgs(appArgs)
+                .appName("SparkPiJob")
+                .appResource("file:/path/to/jar")
+                .mainClass("org.apache.spark.examples.SparkPi")
+                .usingJars(jars)
+                .submit();
     }
 
     @Test
     public void testSubmitJob_WhenArgsAndJarsNotSupplied() throws FailedSparkRequestException {
-        mockServerJobSumbit(Collections.emptyList(),Collections.emptySet());
-        sparkRestClient.submitJob("SparkPiJob", "org.apache.spark.examples.SparkPi", "file:/path/to/jar");
+        mockServerJobSubmit(Collections.emptyList(), Collections.emptySet());
+        sparkRestClient.prepareJobSubmit()
+                .appName("SparkPiJob")
+                .appResource("file:/path/to/jar")
+                .mainClass("org.apache.spark.examples.SparkPi")
+                .submit();
     }
 
-    private void mockServerJobSumbit(final List<String> appArgs, final Set<String> jars) {
+    @Test
+    @Ignore
+    public void testSubmitJob_WhenPropertiesSupplied() throws FailedSparkRequestException {
+        mockServerJobSubmit(Collections.emptyList(), Collections.emptySet());
+        sparkRestClient.prepareJobSubmit()
+                .appName("SparkPiJob")
+                .appResource("file:/path/to/jar")
+                .mainClass("org.apache.spark.examples.SparkPi")
+                .withProperties()
+                .driverCores(4)
+                .driverExtraClassPath("/extra/class/path")
+                .driverExtraJavaOptions("additional-option=enabled")
+                .driverExtraLibraryPath("/extra/library/path")
+                .driverMemory("2g")
+                .eventLogEnabled(true)
+                .supervise(true)
+                .submit();
+    }
+
+    private void mockServerJobSubmit(final List<String> appArgs, final Set<String> jars) {
         final Set<String> allJars = new TreeSet<>(jars);
         allJars.add("file:/path/to/jar");
 
@@ -130,7 +156,7 @@ public class SparkRestClientMockServerTest {
                                 .withBody(responseBody)
                 );
 
-        sparkRestClient.killJob(submissionId);
+        sparkRestClient.killJob().withSubmissionId(submissionId);
     }
 
     @Test
@@ -158,7 +184,7 @@ public class SparkRestClientMockServerTest {
                 );
         exception.expect(FailedSparkRequestException.class);
         exception.expectMessage(containsString("Spark master failed executing the request."));
-        sparkRestClient.killJob(submissionId);
+        sparkRestClient.killJob().withSubmissionId(submissionId);
     }
 
     @Test
@@ -185,7 +211,7 @@ public class SparkRestClientMockServerTest {
                                 .withStatusCode(200)
                                 .withBody(responseBody)
                 );
-        Assert.assertThat(sparkRestClient.jobStatus(submissionId), equalTo(DriverState.FINISHED));
+        Assert.assertThat(sparkRestClient.checkJobStatus().withSubmissionId(submissionId), equalTo(DriverState.FINISHED));
     }
 
     @Test
@@ -214,7 +240,7 @@ public class SparkRestClientMockServerTest {
                 );
         exception.expect(FailedSparkRequestException.class);
         exception.expectMessage(containsString("Spark server responded with different values than expected."));
-        sparkRestClient.jobStatus(submissionId);
+        sparkRestClient.checkJobStatus().withSubmissionId(submissionId);
     }
 
 }
