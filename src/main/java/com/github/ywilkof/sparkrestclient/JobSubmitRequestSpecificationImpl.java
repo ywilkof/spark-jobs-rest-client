@@ -24,9 +24,6 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
     private static final String CHARSET_UTF_8 = "charset=UTF-8";
     private static final String MIME_TYPE_JSON_UTF_8 = MIME_TYPE_JSON + ";" + CHARSET_UTF_8;
 
-    private Boolean eventLogEnabled = Boolean.FALSE;
-    private Boolean supervise = Boolean.FALSE;
-
     private String appResource;
 
     private List<String> appArgs;
@@ -37,9 +34,9 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
 
     private Set<String> jars;
 
-    private Integer driverCores;
-
     private SparkRestClient sparkRestClient;
+
+    private Map<String,String> props = new HashMap<>();
 
     public JobSubmitRequestSpecificationImpl(SparkRestClient sparkRestClient) {
         this.sparkRestClient = sparkRestClient;
@@ -103,40 +100,8 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
     public class SparkPropertiesSpecificationImpl implements SparkPropertiesSpecification {
 
         @Override
-        public SparkPropertiesSpecification supervise(boolean supervise) {
-            JobSubmitRequestSpecificationImpl.this.supervise = supervise;
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification eventLogEnabled(boolean eventLogEnabled) {
-            JobSubmitRequestSpecificationImpl.this.eventLogEnabled = eventLogEnabled;
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification driverMemory(String driverMemory) {
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification driverCores(Integer driverCores) {
-            JobSubmitRequestSpecificationImpl.this.driverCores = driverCores;
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification driverExtraJavaOptions(String driverExtraJavaOptions) {
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification driverExtraClassPath(String driverExtraClassPath) {
-            return this;
-        }
-
-        @Override
-        public SparkPropertiesSpecification driverExtraLibraryPath(String driverExtraLibraryPath) {
+        public SparkPropertiesSpecification put(String sparkProperty, String value) {
+            props.put(sparkProperty,value);
             return this;
         }
 
@@ -150,12 +115,13 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
      * Submit a new spark job to the Spark Standalone cluster.
      * @return SubmissionId of task submitted to the Spark cluster, if submission was successful.
      * Please note that a successful submission does not guarantee successful deployment of app.
-     * @throws FailedSparkRequestException iff submission failed..
+     * @throws FailedSparkRequestException iff submission failed.
      */
     public String submit() throws FailedSparkRequestException {
         if (mainClass == null || appResource  == null) {
             throw new IllegalArgumentException("mainClass and appResource values must not be null");
         }
+
         final JobSubmitRequest jobSubmitRequest = JobSubmitRequest.builder()
                 .action(Action.CreateSubmissionRequest)
                 .appArgs((appArgs == null) ? Collections.emptyList() : appArgs)
@@ -167,10 +133,8 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
                         JobSubmitRequest.SparkProperties.builder()
                                 .jars(jars(appResource, jars))
                                 .appName(appName)
-                                .eventLogEnabled(eventLogEnabled)
-                                .driverSupervise(supervise)
-                                .driverCores(driverCores)
                                 .master(sparkRestClient.getClusterMode() + "://" + sparkRestClient.getMasterUrl())
+                                .otherProperties(props)
                                 .build()
                 )
                 .build();
@@ -191,6 +155,8 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
 
         return response.getSubmissionId();
     }
+
+
 
     String jars(final String appResource, final Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());

@@ -1,10 +1,13 @@
 package com.github.ywilkof.sparkrestclient;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,26 +46,17 @@ class JobSubmitRequest {
         @JsonProperty(value = "spark.master")
         private String master;
 
-        @JsonProperty(value = "spark.eventLog.enabled")
-        private Boolean eventLogEnabled;
+        private Map<String,String> otherProperties = new HashMap<>();
 
-        @JsonProperty(value = "spark.driver.supervise")
-        private Boolean driverSupervise;
+        void setOtherProperties(String key, String value) {
+            this.otherProperties.put(key,value);
+        }
 
-        @JsonProperty(value = "spark.driver.memory")
-        private Integer driverMemory;
+        @JsonAnyGetter
+        Map<String,String> getOtherProperties() {
+            return this.otherProperties;
+        }
 
-        @JsonProperty(value = "spark.driver.cores")
-        private Integer driverCores;
-
-        @JsonProperty(value = "spark.driver.extraJavaOptions")
-        private String driverExtraJavaOptions;
-
-        @JsonProperty(value = "spark.driver.extraClassPath")
-        private String driverExtraClassPath;
-
-        @JsonProperty(value = "spark.driver.extraLibraryPath")
-        private String driverExtraLibraryPath;
     }
 
 }

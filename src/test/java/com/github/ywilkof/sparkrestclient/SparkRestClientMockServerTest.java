@@ -1,5 +1,6 @@
 package com.github.ywilkof.sparkrestclient;
 
+import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockserver.client.server.MockServerClient;
@@ -11,7 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -48,66 +50,61 @@ public class SparkRestClientMockServerTest {
                 ,"/path/to/additional/jar/B.jar")
                 .collect(Collectors.toSet());
 
-        mockServerJobSubmit(appArgs, jars);
-        sparkRestClient.prepareJobSubmit()
+        mockServerJobSubmit(getExpectedRequest(appArgs,jars));
+        Assert.assertThat(sparkRestClient.prepareJobSubmit()
                 .appArgs(appArgs)
                 .appName("SparkPiJob")
                 .appResource("file:/path/to/jar")
                 .mainClass("org.apache.spark.examples.SparkPi")
                 .usingJars(jars)
-                .submit();
+                .submit(), equalTo("driver-20151008145126-0000"));
     }
 
     @Test
     public void testSubmitJob_WhenArgsAndJarsNotSupplied() throws FailedSparkRequestException {
-        mockServerJobSubmit(Collections.emptyList(), Collections.emptySet());
-        sparkRestClient.prepareJobSubmit()
+        mockServerJobSubmit(getExpectedRequest(Collections.emptyList(), Collections.emptySet()));
+        Assert.assertThat(sparkRestClient.prepareJobSubmit()
                 .appName("SparkPiJob")
                 .appResource("file:/path/to/jar")
                 .mainClass("org.apache.spark.examples.SparkPi")
-                .submit();
+                .submit(), equalTo("driver-20151008145126-0000"));
     }
 
     @Test
-    @Ignore
     public void testSubmitJob_WhenPropertiesSupplied() throws FailedSparkRequestException {
-        mockServerJobSubmit(Collections.emptyList(), Collections.emptySet());
-        sparkRestClient.prepareJobSubmit()
+        final String requestBody = "{\n" +
+                "  \"action\": \"CreateSubmissionRequest\",\n" +
+                "  \"appResource\": \"file:\\/path\\/to\\/jar\",\n" +
+                "  \"appArgs\": [\n" +
+                "  ],\n" +
+                "  \"clientSparkVersion\": \"1.5.0\",\n" +
+                "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
+                "  \"environmentVariables\": {\n" +
+                "  },\n" +
+                "  \"sparkProperties\": {\n" +
+                "    \"spark.jars\": \"file:/path/to/jar\",\n" +
+                "    \"spark.app.name\": \"SparkPiJob\",\n" +
+                "    \"spark.master\": \"spark://localhost:" + mockServerRule.getHttpPort() + "\",\n" +
+                "    \"spark.executor.memory\": \"4g\",\n" +
+                "    \"spark.driver.memory\": \"2g\",\n" +
+                "    \"spark.driver.cores\": \"2\",\n" +
+                "    \"spark.executor.cores\": \"3\"\n" +
+                "  }\n" +
+                "}";
+        mockServerJobSubmit(requestBody);
+        Assert.assertThat(sparkRestClient.prepareJobSubmit()
                 .appName("SparkPiJob")
                 .appResource("file:/path/to/jar")
                 .mainClass("org.apache.spark.examples.SparkPi")
                 .withProperties()
-                .driverCores(4)
-                .driverExtraClassPath("/extra/class/path")
-                .driverExtraJavaOptions("additional-option=enabled")
-                .driverExtraLibraryPath("/extra/library/path")
-                .driverMemory("2g")
-                .eventLogEnabled(true)
-                .supervise(true)
-                .submit();
+                .put("spark.driver.memory","2g")
+                .put("spark.driver.cores","2")
+                .put("spark.executor.cores","3")
+                .put("spark.executor.memory","4g")
+                .submit(), Matchers.equalTo("driver-20151008145126-0000"));
     }
 
-    private void mockServerJobSubmit(final List<String> appArgs, final Set<String> jars) {
-        final Set<String> allJars = new TreeSet<>(jars);
-        allJars.add("file:/path/to/jar");
-
-        final String requestBody = "{\n" +
-                "  \"action\": \"CreateSubmissionRequest\",\n" +
-                "  \"appResource\": \"file:/path/to/jar\",\n" +
-                "  \"appArgs\": [\n" + String.join(",", appArgs) + "],\n" +
-                "  \"clientSparkVersion\": \"1.5.0\",\n" +
-                "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
-                "  \"environmentVariables\": {\n" +
-                "    \n" +
-                "  },\n" +
-                "  \"sparkProperties\": {\n" +
-                "    \"spark.jars\": \""+  String.join(",",allJars) + "\",\n" +
-                "    \"spark.app.name\": \"SparkPiJob\",\n" +
-                "    \"spark.master\": \"spark://localhost:"+ mockServerRule.getHttpPort() + "\",\n" +
-                "    \"spark.eventLog.enabled\": false,\n" +
-                "    \"spark.driver.supervise\": false\n" +
-                "  }\n" +
-                "}";
+    private void mockServerJobSubmit(String expectedRequestBody) {
         final String responseBody = "{\n" +
                 "  \"action\" : \"CreateSubmissionResponse\",\n" +
                 "  \"message\" : \"Driver successfully submitted as driver-20151008145126-0000\",\n" +
@@ -120,8 +117,8 @@ public class SparkRestClientMockServerTest {
                         request()
                                 .withMethod("POST")
                                 .withPath("/v1/submissions/create")
-                                .withHeader(new Header("Content-Type","application/json;charset=UTF-8"))
-                                .withBody(json((requestBody))),
+                                .withHeader(new Header("Content-Type", "application/json;charset=UTF-8"))
+                                .withBody(json((expectedRequestBody))),
                         exactly(1)
                 )
                 .respond(
@@ -129,6 +126,26 @@ public class SparkRestClientMockServerTest {
                                 .withStatusCode(200)
                                 .withBody(responseBody)
                 );
+    }
+
+    private String getExpectedRequest(List<String> appArgs, Set<String> jars) {
+        final Set<String> allJars = new TreeSet<>(jars);
+        allJars.add("file:/path/to/jar");
+        return "{\n" +
+                    "  \"action\": \"CreateSubmissionRequest\",\n" +
+                    "  \"appResource\": \"file:/path/to/jar\",\n" +
+                    "  \"appArgs\": [" + String.join(",", appArgs) + "],\n" +
+                    "  \"clientSparkVersion\": \"1.5.0\",\n" +
+                    "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
+                    "  \"environmentVariables\": {\n" +
+                    "    \n" +
+                    "  },\n" +
+                    "  \"sparkProperties\": {\n" +
+                    "    \"spark.jars\": \""+  String.join(",",allJars) + "\",\n" +
+                    "    \"spark.app.name\": \"SparkPiJob\",\n" +
+                    "    \"spark.master\": \"spark://localhost:"+ mockServerRule.getHttpPort() + "\",\n" +
+                    "  }\n" +
+                    "}";
     }
 
 
@@ -156,7 +173,7 @@ public class SparkRestClientMockServerTest {
                                 .withBody(responseBody)
                 );
 
-        sparkRestClient.killJob().withSubmissionId(submissionId);
+        Assert.assertThat(sparkRestClient.killJob().withSubmissionId(submissionId), is(true));
     }
 
     @Test

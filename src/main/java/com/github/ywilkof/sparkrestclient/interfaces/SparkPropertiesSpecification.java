@@ -7,19 +7,7 @@ import com.github.ywilkof.sparkrestclient.FailedSparkRequestException;
  */
 public interface SparkPropertiesSpecification {
 
-    SparkPropertiesSpecification supervise(boolean supervise);
-
-    SparkPropertiesSpecification eventLogEnabled(boolean eventLogEnabled);
-
-    SparkPropertiesSpecification driverMemory(String driverMemory);
-
-    SparkPropertiesSpecification driverCores(Integer driverCores);
-
-    SparkPropertiesSpecification driverExtraJavaOptions(String driverExtraJavaOptions);
-
-    SparkPropertiesSpecification driverExtraClassPath(String driverExtraClassPath);
-
-    SparkPropertiesSpecification driverExtraLibraryPath(String driverExtraLibraryPath);
+    SparkPropertiesSpecification put(String sparkProperty, String value);
 
     String submit() throws FailedSparkRequestException;
 
