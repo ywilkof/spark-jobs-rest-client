@@ -8,6 +8,10 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 - Inquire a job's current status that was previously submitted to the cluster
 - Kill a job running on a cluster
 
+# Requirements
+- JAVA 1.8
+- Spark version supplying the Rest API. This client was tested with version 1.5. 
+
 ## Creating the client
 
 In order to issue requests to a Spark cluster, a client has to be created.
