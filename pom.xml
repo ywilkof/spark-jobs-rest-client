@@ -8,7 +8,8 @@
     <packaging>jar</packaging>
 
     <name>Spark Jobs Rest Client</name>
-    <description>Utility client for interacting with Spark Standalone Mode's Rest API for submitting, killing and monitoring the state of jobs.</description>
+    <description>Fluent utility client for interacting with Spark Standalone Mode's Rest API for submitting, killing and monitoring the state of jobs.</description>
+    <url>https://github.com/ywilkof/spark-jobs-rest-client</url>
 
     <licenses>
         <license>
