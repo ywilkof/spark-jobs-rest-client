@@ -22,6 +22,8 @@
         <developer>
             <name>Yonatan Wilkof</name>
             <email>ywilkof@gmail.com</email>
+            <organization>Yonatan Wilkof</organization>
+            <organizationUrl>https://github.com/ywilkof/</organizationUrl>
         </developer>
     </developers>
 
