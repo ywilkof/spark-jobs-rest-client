@@ -4,7 +4,7 @@
 
     <groupId>com.github.ywilkof</groupId>
     <artifactId>spark-jobs-rest-client</artifactId>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Spark Jobs Rest Client</name>
@@ -28,7 +28,7 @@
         <url>https://github.com/ywilkof/spark-jobs-rest-client</url>
         <connection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client</connection>
         <developerConnection>scm:git:git@github.com:ywilkof/spark-jobs-rest-client</developerConnection>
-      <tag>spark-jobs-rest-client-1.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
