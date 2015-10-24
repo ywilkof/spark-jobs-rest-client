@@ -12,13 +12,12 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 
 In order to issue requests to a Spark cluster, a client has to be created.
 The client has several configurations, which will be used across all the requests issued from it.
-Master host and master REST port are required.
+Only Master host is required and the rest of the fields have sensible defaults.
 
 ```` java
 SparkRestClient.builder()
     .masterHost("localhost")
-    .masterPort(mockServerRule.getHttpPort())
-.build()
+.build();
 ```
 
 By default, the client is backed up by an HttpClient with a BasicHttpClientConnectionManager.
@@ -65,8 +64,8 @@ Following is a basic job status request:
 
 ``` java 
 final DriverState driverState = sparkRestClient
-        .checkJobStatus().
-        withSubmissionId(submissionId)
+    .checkJobStatus()
+    .withSubmissionId(submissionId);
 ```
 
 ## Killing A Job
