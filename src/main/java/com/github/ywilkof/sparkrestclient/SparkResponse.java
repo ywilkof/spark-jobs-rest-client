@@ -16,7 +16,7 @@ class SparkResponse {
 
     protected String message;
 
-    protected SparkVersion serverSparkVersion;
+    protected String serverSparkVersion;
 
     protected String submissionId;
 

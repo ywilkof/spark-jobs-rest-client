@@ -22,7 +22,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
 
     SparkRestClient() {}
 
-    private SparkVersion sparkVersion;
+    private String sparkVersion;
 
     private Integer masterPort;
 
@@ -60,7 +60,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
     }
 
     public static class SparkRestClientBuilder {
-        private SparkVersion sparkVersion = SparkVersion.V1_5_0;
+        private String sparkVersion;
         private Integer masterPort = 6066;
         private String masterHost;
         private ClusterMode clusterMode = ClusterMode.spark;
@@ -75,7 +75,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
         private SparkRestClientBuilder() {
         }
 
-        public SparkRestClientBuilder sparkVersion(SparkVersion sparkVersion) {
+        public SparkRestClientBuilder sparkVersion(String sparkVersion) {
             this.sparkVersion = sparkVersion;
             return this;
         }

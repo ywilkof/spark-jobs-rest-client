@@ -39,6 +39,7 @@ public class SparkRestClientMockServerTest {
     public void setUp() {
         this.sparkRestClient = SparkRestClient.builder()
                 .masterHost("localhost")
+                .sparkVersion("1.5.0")
                 .masterPort(mockServerRule.getHttpPort())
         .build();
     }
