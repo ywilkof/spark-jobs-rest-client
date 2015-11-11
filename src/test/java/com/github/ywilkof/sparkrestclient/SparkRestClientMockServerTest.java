@@ -200,9 +200,7 @@ public class SparkRestClientMockServerTest {
                                 .withStatusCode(200)
                                 .withBody(responseBody)
                 );
-        exception.expect(FailedSparkRequestException.class);
-        exception.expectMessage(containsString("Spark master failed executing the request."));
-        sparkRestClient.killJob().withSubmissionId(submissionId);
+        Assert.assertFalse(sparkRestClient.killJob().withSubmissionId(submissionId));
     }
 
     @Test
@@ -257,7 +255,6 @@ public class SparkRestClientMockServerTest {
                                 .withBody(responseBody)
                 );
         exception.expect(FailedSparkRequestException.class);
-        exception.expectMessage(containsString("Spark server responded with different values than expected."));
         sparkRestClient.checkJobStatus().withSubmissionId(submissionId);
     }
 

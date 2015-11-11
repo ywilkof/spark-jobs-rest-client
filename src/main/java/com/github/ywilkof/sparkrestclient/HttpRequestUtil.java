@@ -20,15 +20,15 @@ public class HttpRequestUtil {
                 throw new FailedSparkRequestException("Received empty string response");
             }
         } catch (InvalidFormatException e) {
-            throw new FailedSparkRequestException("Spark server responded with different values than expected.");
+            throw new FailedSparkRequestException(e);
         } catch (IOException e) {
             throw new FailedSparkRequestException(e);
         } finally {
             httpRequest.releaseConnection();
         }
 
-        if (response == null || !response.getSuccess()) {
-            throw new FailedSparkRequestException("Spark master failed executing the request.");
+        if (response == null) {
+            throw new FailedSparkRequestException("An issue occured with the cluster's response.");
         }
 
         return response;

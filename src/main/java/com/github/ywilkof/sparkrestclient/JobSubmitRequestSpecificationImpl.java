@@ -153,6 +153,9 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
 
         final SparkResponse response = HttpRequestUtil.executeHttpMethodAndGetResponse(sparkRestClient.getClient(), post, SparkResponse.class);
 
+        if (!response.getSuccess()) {
+            throw new FailedSparkRequestException("submit was not successful.");
+        }
         return response.getSubmissionId();
     }
 
