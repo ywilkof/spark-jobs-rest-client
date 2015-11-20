@@ -2,11 +2,20 @@
 
 This project is provides a Fluent utility Http client to interact with Spark Standalone Rest Server that is bundled with the Spark distribution, as described in Arthur Mkrtchyan's [blog post](http://arturmkrtchyan.com/apache-spark-hidden-rest-api).
  
- 
 # Features
 - Submit jobs to a spark standalone cluster
 - Inquire a job's current status that was previously submitted to the cluster
 - Kill a job running on a cluster
+
+# Maven Dependency
+
+```xml
+<dependency>
+    <groupId>com.github.ywilkof</groupId>
+    <artifactId>spark-jobs-rest-client</artifactId>
+    <version>1.3</version>
+</dependency>
+```
 
 # Requirements
 - JAVA 1.8
@@ -16,16 +25,17 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 
 In order to issue requests to a Spark cluster, a client has to be created.
 The client has several configurations, which will be used across all the requests issued from it.
-Only Master host is required and the rest of the fields have sensible defaults.
+Master host and Spark Version are required and the rest of the fields have sensible defaults.
 
 ```` java
 SparkRestClient.builder()
     .masterHost("localhost")
+    .sparkVersion("1.5.0")
 .build();
 ```
 
 By default, the client is backed up by an HttpClient with a BasicHttpClientConnectionManager.
-This can be changed by supplying at client creation a different HttpClient.
+This can be changed by supplying at client creation a different HttpClient, or by calling poolingHttpClient(int maxTotalConnections) which will override the default BasicHttpClientConnectionManager.
  
 ## Submitting Jobs
 

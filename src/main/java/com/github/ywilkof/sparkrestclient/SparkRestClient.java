@@ -8,8 +8,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.client.HttpClient;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import java.util.*;
 
@@ -71,7 +74,6 @@ public class SparkRestClient implements RequestOptionsSpecification {
                 .setConnectionManager(new BasicHttpClientConnectionManager())
                 .build();
 
-
         private SparkRestClientBuilder() {
         }
 
@@ -102,6 +104,14 @@ public class SparkRestClient implements RequestOptionsSpecification {
 
         public SparkRestClientBuilder httpClient(HttpClient httpClient) {
             this.client = httpClient;
+            return this;
+        }
+
+        public SparkRestClientBuilder poolingHttpClient(int maxTotalConnections) {
+            final PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+            poolingHttpClientConnectionManager.setMaxTotal(maxTotalConnections);
+            poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxTotalConnections); // we will have only one route - spark master
+            this.client = HttpClientBuilder.create().setConnectionManager(poolingHttpClientConnectionManager).build();
             return this;
         }
 
