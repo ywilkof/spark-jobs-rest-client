@@ -13,7 +13,7 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 <dependency>
     <groupId>com.github.ywilkof</groupId>
     <artifactId>spark-jobs-rest-client</artifactId>
-    <version>1.3</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
