@@ -123,6 +123,9 @@ public class SparkRestClient implements RequestOptionsSpecification {
             if (client == null) {
                 throw new IllegalArgumentException("http client cannot be null.");
             }
+            if (sparkVersion == null || sparkVersion.isEmpty()) {
+                throw new IllegalArgumentException("spark version is not set.");
+            }
             SparkRestClient sparkRestClient = new SparkRestClient();
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
