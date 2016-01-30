@@ -98,6 +98,8 @@ final boolean successfulKill = sparkRestClient
 The kill request returns a boolean that forwards the cluster response as to whether the kill request was successfully issued or not.
 A kill request for a non-existing job will always return false.
 
+# Known Issues
+When using Spark's REST API, spark-default.conf is not being picked up. Simple solution to this is further elaborated on [my blog](http://yonatanwilkof.com/post/138342272704/spark-rest-job-submit-api-environment-variable).
 # License
  
  Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
