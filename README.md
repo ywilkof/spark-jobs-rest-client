@@ -19,7 +19,7 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 
 # Requirements
 - JAVA 1.8
-- Spark version supplying the Rest API. This client was tested with version 1.5. 
+- Spark version supplying the Rest API. This client is compatabile with version 1.5 and above. 
 
 ## Creating the client
 
