@@ -4,17 +4,18 @@ import com.github.ywilkof.sparkrestclient.interfaces.JobStatusRequestSpecificati
 import com.github.ywilkof.sparkrestclient.interfaces.JobSubmitRequestSpecification;
 import com.github.ywilkof.sparkrestclient.interfaces.KillJobRequestSpecification;
 import com.github.ywilkof.sparkrestclient.interfaces.RequestOptionsSpecification;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+
 import org.apache.http.client.HttpClient;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by yonatan on 08.10.15.
@@ -31,6 +32,8 @@ public class SparkRestClient implements RequestOptionsSpecification {
 
     private String masterHost;
 
+    private String masterApiRoot;
+
     private ClusterMode clusterMode;
 
     private Map<String,String> environmentVariables;
@@ -40,7 +43,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
     private HttpClient client;
 
     String getMasterUrl() {
-        return masterHost + ":" + masterPort;
+        return masterHost + ":" + masterPort + "/" + masterApiRoot;
     }
 
     public static SparkRestClientBuilder builder() {
@@ -66,6 +69,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
         private String sparkVersion;
         private Integer masterPort = 6066;
         private String masterHost;
+        private String masterApiRoot;
         private ClusterMode clusterMode = ClusterMode.spark;
 
         private Map<String,String> environmentVariables = Collections.emptyMap();
@@ -84,6 +88,14 @@ public class SparkRestClient implements RequestOptionsSpecification {
 
         public SparkRestClientBuilder masterPort(Integer masterPort) {
             this.masterPort = masterPort;
+            return this;
+        }
+
+        public SparkRestClientBuilder masterApiRoot(String masterApiRoot) {
+            if (masterApiRoot.startsWith("/")) {
+              masterApiRoot = masterApiRoot.substring(1);
+            }
+            this.masterApiRoot = masterApiRoot;
             return this;
         }
 
@@ -109,6 +121,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
 
         public SparkRestClientBuilder poolingHttpClient(int maxTotalConnections) {
             final PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+
             poolingHttpClientConnectionManager.setMaxTotal(maxTotalConnections);
             poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxTotalConnections); // we will have only one route - spark master
             this.client = HttpClientBuilder.create().setConnectionManager(poolingHttpClientConnectionManager).build();
@@ -130,6 +143,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
             sparkRestClient.setMasterHost(masterHost);
+            sparkRestClient.setMasterApiRoot(masterApiRoot);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
             sparkRestClient.setClient(client);
             sparkRestClient.setClusterMode(clusterMode);

@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class JobSubmitRequestSpecificationImplTest {
 
     private SparkRestClient sparkRestClient = SparkRestClient.builder()
-            .masterHost("").masterPort(0).build();
+        .sparkVersion("someVersion").masterHost("").masterPort(0).build();
 
     @Test(expected = IllegalArgumentException.class)
     public void tesSubmitJob_WhenAppResourceNotSupplied_ThenThrowException() throws FailedSparkRequestException {
