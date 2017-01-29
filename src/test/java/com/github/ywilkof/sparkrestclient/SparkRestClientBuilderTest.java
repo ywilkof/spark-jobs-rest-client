@@ -1,5 +1,6 @@
 package com.github.ywilkof.sparkrestclient;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,5 +43,24 @@ public class SparkRestClientBuilderTest {
         builder.masterPort(6066);
         builder.sparkVersion("");
         builder.build();
+    }
+
+    @Test
+    public void testGetMasterUrl_WhenNoMasterApiUrlRoot_ThenReturnUrl() throws Exception {
+        builder.masterHost("localhost");
+        builder.masterPort(6066);
+        builder.sparkVersion("some version");
+        final SparkRestClient client = builder.build();
+        Assert.assertEquals("localhost:6066",client.getMasterUrl());
+    }
+
+    @Test
+    public void testGetMasterUrl_WhenWithMasterApiUrlRoot_ThenReturnUrl() throws Exception {
+        builder.masterHost("localhost");
+        builder.masterPort(6066);
+        builder.sparkVersion("some version");
+        builder.masterApiRoot("someurl");
+        final SparkRestClient client = builder.build();
+        Assert.assertEquals("localhost:6066/someurl",client.getMasterUrl());
     }
 }
