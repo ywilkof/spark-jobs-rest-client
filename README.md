@@ -22,7 +22,6 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 "com.github.ywilkof" % "spark-jobs-rest-client" % "1.3.1"
 ```
 
-
 # Requirements
 - JAVA 1.8
 - Spark version supplying the Rest API. This client is compatabile with version 1.5 and above. 
