@@ -36,7 +36,7 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
 
     private SparkRestClient sparkRestClient;
 
-    private Map<String,String> props = new HashMap<>();
+    private Map<String, String> props = new HashMap<>();
 
     public JobSubmitRequestSpecificationImpl(SparkRestClient sparkRestClient) {
         this.sparkRestClient = sparkRestClient;
@@ -101,7 +101,7 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
 
         @Override
         public SparkPropertiesSpecification put(String sparkProperty, String value) {
-            props.put(sparkProperty,value);
+            props.put(sparkProperty, value);
             return this;
         }
 
@@ -118,7 +118,7 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
      * @throws FailedSparkRequestException iff submission failed.
      */
     public String submit() throws FailedSparkRequestException {
-        if (mainClass == null || appResource  == null) {
+        if (mainClass == null || appResource == null) {
             throw new IllegalArgumentException("mainClass and appResource values must not be null");
         }
 
@@ -126,7 +126,7 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
                 .action(Action.CreateSubmissionRequest)
                 .appArgs((appArgs == null) ? Collections.emptyList() : appArgs)
                 .appResource(appResource)
-                .clientSparkVersion(sparkRestClient.getSparkVersion().toString())
+                .clientSparkVersion(sparkRestClient.getSparkVersion())
                 .mainClass(mainClass)
                 .environmentVariables(sparkRestClient.getEnvironmentVariables())
                 .sparkProperties(
@@ -158,8 +158,6 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
         }
         return response.getSubmissionId();
     }
-
-
 
     String jars(final String appResource, final Set<String> jars) {
         final Set<String> output = Stream.of(appResource).collect(Collectors.toSet());
