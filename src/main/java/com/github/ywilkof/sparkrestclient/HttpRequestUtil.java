@@ -1,7 +1,5 @@
 package com.github.ywilkof.sparkrestclient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -15,12 +13,10 @@ public class HttpRequestUtil {
         try {
             final String stringResponse = client.execute(httpRequest, new BasicResponseHandler());
             if (stringResponse != null) {
-                response = (T) MapperWrapper.MAPPER.readValue(stringResponse, responseClass);
+                response = MapperWrapper.MAPPER.readValue(stringResponse, responseClass);
             } else {
                 throw new FailedSparkRequestException("Received empty string response");
             }
-        } catch (InvalidFormatException e) {
-            throw new FailedSparkRequestException(e);
         } catch (IOException e) {
             throw new FailedSparkRequestException(e);
         } finally {

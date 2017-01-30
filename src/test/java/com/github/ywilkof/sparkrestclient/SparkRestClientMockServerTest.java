@@ -1,7 +1,10 @@
 package com.github.ywilkof.sparkrestclient;
 
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
@@ -11,9 +14,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -41,17 +45,17 @@ public class SparkRestClientMockServerTest {
                 .masterHost("localhost")
                 .sparkVersion("1.5.0")
                 .masterPort(mockServerRule.getHttpPort())
-        .build();
+                .build();
     }
 
     @Test
     public void testSubmitJob_WhenArgsAndJarsSupplied() throws Exception {
-        final List<String> appArgs = Stream.of("A","B","C").collect(Collectors.toList());
+        final List<String> appArgs = Stream.of("A", "B", "C").collect(Collectors.toList());
         final Set<String> jars = Stream.of("/path/to/additional/jar/A.jar"
-                ,"/path/to/additional/jar/B.jar")
+                , "/path/to/additional/jar/B.jar")
                 .collect(Collectors.toSet());
 
-        mockServerJobSubmit(getExpectedRequest(appArgs,jars));
+        mockServerJobSubmit(getExpectedRequest(appArgs, jars));
         Assert.assertThat(sparkRestClient.prepareJobSubmit()
                 .appArgs(appArgs)
                 .appName("SparkPiJob")
@@ -98,10 +102,10 @@ public class SparkRestClientMockServerTest {
                 .appResource("file:/path/to/jar")
                 .mainClass("org.apache.spark.examples.SparkPi")
                 .withProperties()
-                .put("spark.driver.memory","2g")
-                .put("spark.driver.cores","2")
-                .put("spark.executor.cores","3")
-                .put("spark.executor.memory","4g")
+                .put("spark.driver.memory", "2g")
+                .put("spark.driver.cores", "2")
+                .put("spark.executor.cores", "3")
+                .put("spark.executor.memory", "4g")
                 .submit(), Matchers.equalTo("driver-20151008145126-0000"));
     }
 
@@ -111,7 +115,9 @@ public class SparkRestClientMockServerTest {
                 "  \"message\" : \"Driver successfully submitted as driver-20151008145126-0000\",\n" +
                 "  \"serverSparkVersion\" : \"1.5.0\",\n" +
                 "  \"submissionId\" : \"driver-20151008145126-0000\",\n" +
-                "  \"success\" : true\n" +
+                "  \"success\" : true,\n" +
+                "  \"workerHostPort\": \"127.0.0.1:7078\",\n" +
+                "  \"workerId\": \"worker-20170130102812-7078\"\n" +
                 "}";
         mockServerClient
                 .when(
@@ -133,20 +139,20 @@ public class SparkRestClientMockServerTest {
         final Set<String> allJars = new TreeSet<>(jars);
         allJars.add("file:/path/to/jar");
         return "{\n" +
-                    "  \"action\": \"CreateSubmissionRequest\",\n" +
-                    "  \"appResource\": \"file:/path/to/jar\",\n" +
-                    "  \"appArgs\": [" + String.join(",", appArgs) + "],\n" +
-                    "  \"clientSparkVersion\": \"1.5.0\",\n" +
-                    "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
-                    "  \"environmentVariables\": {\n" +
-                    "    \n" +
-                    "  },\n" +
-                    "  \"sparkProperties\": {\n" +
-                    "    \"spark.jars\": \""+  String.join(",",allJars) + "\",\n" +
-                    "    \"spark.app.name\": \"SparkPiJob\",\n" +
-                    "    \"spark.master\": \"spark://localhost:"+ mockServerRule.getHttpPort() + "\",\n" +
-                    "  }\n" +
-                    "}";
+                "  \"action\": \"CreateSubmissionRequest\",\n" +
+                "  \"appResource\": \"file:/path/to/jar\",\n" +
+                "  \"appArgs\": [" + String.join(",", appArgs) + "],\n" +
+                "  \"clientSparkVersion\": \"1.5.0\",\n" +
+                "  \"mainClass\": \"org.apache.spark.examples.SparkPi\",\n" +
+                "  \"environmentVariables\": {\n" +
+                "    \n" +
+                "  },\n" +
+                "  \"sparkProperties\": {\n" +
+                "    \"spark.jars\": \"" + String.join(",", allJars) + "\",\n" +
+                "    \"spark.app.name\": \"SparkPiJob\",\n" +
+                "    \"spark.master\": \"spark://localhost:" + mockServerRule.getHttpPort() + "\",\n" +
+                "  }\n" +
+                "}";
     }
 
 
@@ -258,4 +264,41 @@ public class SparkRestClientMockServerTest {
         sparkRestClient.checkJobStatus().withSubmissionId(submissionId);
     }
 
+    @Test
+    public void testJobStatus_WhenValidSubmissionId_ThenReturnFullJobResponse() throws Exception {
+        final String submissionId = UUID.randomUUID().toString();
+        final String responseBody = "{\n" +
+                "  \"action\" : \"SubmissionStatusResponse\",\n" +
+                "  \"driverState\" : \"RUNNING\",\n" +
+                "  \"serverSparkVersion\" : \"1.5.0\",\n" +
+                "  \"submissionId\" : \"driver-" + submissionId + "\",\n" +
+                "  \"success\" : true,\n" +
+                "  \"workerHostPort\" : \"192.168.3.153:46894\",\n" +
+                "  \"workerId\" : \"worker-20151007093409-192.168.3.153-46894\"\n" +
+                "}";
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/v1/submissions/status/" + submissionId),
+                        exactly(1)
+                )
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withBody(responseBody)
+                );
+
+        JobStatusResponse expected = new JobStatusResponse();
+        expected.setAction(Action.SubmissionStatusResponse);
+        expected.setDriverState(DriverState.RUNNING);
+        expected.setSubmissionId("driver-" + submissionId);
+        expected.setServerSparkVersion("1.5.0");
+        expected.setSuccess(true);
+        expected.setWorkerHostPort("192.168.3.153:46894");
+        expected.setWorkerId("worker-20151007093409-192.168.3.153-46894");
+
+        JobStatusResponse actual = sparkRestClient.checkJobStatus().withSubmissionIdFullResponse(submissionId);
+        assertThat(actual, samePropertyValuesAs(expected));
+    }
 }
