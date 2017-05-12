@@ -19,7 +19,7 @@ This project is provides a Fluent utility Http client to interact with Spark Sta
 
 # SBT
 ```
-"com.github.ywilkof" % "spark-jobs-rest-client" % "1.3.2"
+"com.github.ywilkof" % "spark-jobs-rest-client" % "1.3.3"
 ```
 
 # Requirements
