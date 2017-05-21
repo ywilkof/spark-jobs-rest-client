@@ -77,6 +77,7 @@ a successful finished execution of a job.
 - KILLED
 - FAILED
 - ERROR
+- QUEUED (Mesos)
 
 
 Following is a basic job status request:
@@ -96,7 +97,7 @@ JobStatusResponse jobStatus =
     .checkJobStatus()
     .withSubmissionIdFullResponse(submissionId);
     
- System.out.println(jobStatus.workerHostPort);
+ System.out.println(jobStatus.getWorkerHostPort());
 ```
 
 ## Killing A Job
