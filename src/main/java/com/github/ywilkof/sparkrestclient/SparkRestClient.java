@@ -12,6 +12,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -43,11 +44,33 @@ public class SparkRestClient implements RequestOptionsSpecification {
     private HttpClient client;
 
     String getMasterUrl() {
-        if (masterApiRoot == null || masterApiRoot.isEmpty()) {
-            return masterHost + ":" + masterPort;
-        } else {
-            return masterHost + ":" + masterPort + "/" + masterApiRoot;
+
+        final String host = Optional
+                .ofNullable(masterHost)
+                .filter(s -> !s.isEmpty())
+                .orElseThrow(() -> new IllegalStateException("master host must be set before getting master url"));
+
+        final Optional<String> maybeMasterApiRoot = Optional
+                .ofNullable(masterApiRoot)
+                .filter(s -> !s.isEmpty());
+
+        final Optional<Integer> maybePort = Optional
+                .ofNullable(masterPort);
+
+        if (maybeMasterApiRoot.isPresent() && maybePort.isPresent())  {
+            return host + ":" + masterPort + "/" + masterApiRoot;
         }
+
+        if (!maybeMasterApiRoot.isPresent() && maybePort.isPresent())  {
+            return host + ":" + masterPort;
+        }
+
+        if (maybeMasterApiRoot.isPresent() && !maybePort.isPresent())  {
+            return host + "/" + masterApiRoot;
+        }
+
+        return host;
+
     }
 
     public static SparkRestClientBuilder builder() {
@@ -133,9 +156,8 @@ public class SparkRestClient implements RequestOptionsSpecification {
         }
 
         public SparkRestClient build() {
-            if (masterHost == null ||
-                    masterPort == null) {
-                throw new IllegalArgumentException("master host and port must be set.");
+            if (masterHost == null) {
+                throw new IllegalArgumentException("master host must be set.");
             }
             if (client == null) {
                 throw new IllegalArgumentException("http client cannot be null.");
