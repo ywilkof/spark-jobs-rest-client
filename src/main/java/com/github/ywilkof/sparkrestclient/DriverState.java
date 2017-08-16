@@ -12,5 +12,6 @@ public enum DriverState {
     KILLED,
     FAILED,
     ERROR,
-    QUEUED;
+    QUEUED,
+    NOT_FOUND;
 }

@@ -77,6 +77,7 @@ a successful finished execution of a job.
 - KILLED
 - FAILED
 - ERROR
+- NOT_FOUND
 - QUEUED (Mesos)
 
 
