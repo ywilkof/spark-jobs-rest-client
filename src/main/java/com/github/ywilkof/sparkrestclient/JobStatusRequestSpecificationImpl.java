@@ -39,7 +39,7 @@ public class JobStatusRequestSpecificationImpl implements JobStatusRequestSpecif
         final String url = "http://" + sparkRestClient.getMasterUrl() + "/v1/submissions/status/" + submissionId;
         final JobStatusResponse response = HttpRequestUtil.executeHttpMethodAndGetResponse(sparkRestClient.getClient(), new HttpGet(url),JobStatusResponse.class);
         if (!response.getSuccess()) {
-            throw new FailedSparkRequestException("submit was not successful.");
+            throw new FailedSparkRequestException("submit was not successful.", response.getDriverState());
         }
         return response;
     }
