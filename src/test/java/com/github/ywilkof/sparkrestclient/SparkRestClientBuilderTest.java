@@ -40,6 +40,24 @@ public class SparkRestClientBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testBuild_WhenHttpSchemeIsNull_ThenThrowException() throws Exception {
+        builder.masterHost("localhost");
+        builder.masterPort(6066);
+        builder.sparkVersion("some version");
+        builder.httpScheme(null);
+        builder.build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuild_WhenHttpSchemeIsInvalid_ThenThrowException() throws Exception {
+        builder.masterHost("localhost");
+        builder.masterPort(6066);
+        builder.sparkVersion("some version");
+        builder.httpScheme("bla");
+        builder.build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testBuild_WhenSparkVersionIsNull_ThenThrowException() throws Exception {
         builder.masterHost("localhost");
         builder.masterPort(6066);

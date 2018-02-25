@@ -139,7 +139,7 @@ public class JobSubmitRequestSpecificationImpl implements JobSubmitRequestSpecif
                 )
                 .build();
 
-        final String url = "http://" + sparkRestClient.getMasterUrl() + "/v1/submissions/create";
+        final String url = sparkRestClient.getHttpScheme() + "://" + sparkRestClient.getMasterUrl() + "/v1/submissions/create";
 
         final HttpPost post = new HttpPost(url);
         post.setHeader(HTTP.CONTENT_TYPE, MIME_TYPE_JSON_UTF_8);

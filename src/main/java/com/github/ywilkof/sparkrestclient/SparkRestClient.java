@@ -10,9 +10,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,6 +28,8 @@ public class SparkRestClient implements RequestOptionsSpecification {
     private String sparkVersion;
 
     private Integer masterPort;
+
+    private String httpScheme;
 
     private String masterHost;
 
@@ -97,6 +97,7 @@ public class SparkRestClient implements RequestOptionsSpecification {
         private Integer masterPort = 6066;
         private String masterHost;
         private String masterApiRoot;
+        private String httpScheme = "http";
         private ClusterMode clusterMode = ClusterMode.spark;
 
         private Map<String,String> environmentVariables = Collections.emptyMap();
@@ -126,6 +127,11 @@ public class SparkRestClient implements RequestOptionsSpecification {
             return this;
         }
 
+        public SparkRestClientBuilder httpScheme(String httpScheme) {
+            this.httpScheme = (httpScheme != null) ? httpScheme.toLowerCase() : null;
+            return this;
+        }
+
         public SparkRestClientBuilder masterHost(String masterHost) {
             this.masterHost = masterHost;
             return this;
@@ -146,6 +152,8 @@ public class SparkRestClient implements RequestOptionsSpecification {
             return this;
         }
 
+        private final static Set<String> ALLOWED_HTTP_SCHEMES = new HashSet<>(Arrays.asList("http","https"));
+
         public SparkRestClientBuilder poolingHttpClient(int maxTotalConnections) {
             final PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
 
@@ -165,10 +173,14 @@ public class SparkRestClient implements RequestOptionsSpecification {
             if (sparkVersion == null || sparkVersion.isEmpty()) {
                 throw new IllegalArgumentException("spark version is not set.");
             }
+            if (!ALLOWED_HTTP_SCHEMES.contains(httpScheme)) {
+                throw new IllegalArgumentException("Supported http schemes are: [" + String.join(",", ALLOWED_HTTP_SCHEMES) + "]" );
+            }
             SparkRestClient sparkRestClient = new SparkRestClient();
             sparkRestClient.setSparkVersion(sparkVersion);
             sparkRestClient.setMasterPort(masterPort);
             sparkRestClient.setMasterHost(masterHost);
+            sparkRestClient.setHttpScheme(httpScheme);
             sparkRestClient.setMasterApiRoot(masterApiRoot);
             sparkRestClient.setEnvironmentVariables(environmentVariables);
             sparkRestClient.setClient(client);
