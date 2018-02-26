@@ -13,13 +13,13 @@ This project provides a Fluent utility Http client to interact with Spark Standa
 <dependency>
     <groupId>com.github.ywilkof</groupId>
     <artifactId>spark-jobs-rest-client</artifactId>
-    <version>1.3.6</version>
+    <version>1.3.7</version>
 </dependency>
 ```
 
 # SBT
 ```
-"com.github.ywilkof" % "spark-jobs-rest-client" % "1.3.6"
+"com.github.ywilkof" % "spark-jobs-rest-client" % "1.3.7"
 ```
 
 # Requirements
