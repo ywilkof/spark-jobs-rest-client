@@ -21,7 +21,7 @@ public class KillJobRequestSpecificationImpl implements KillJobRequestSpecificat
     @Override
     public boolean withSubmissionId(String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
-        final String url = "http://" + sparkRestClient.getMasterUrl() + "/v1/submissions/kill/" + submissionId;
+        final String url = sparkRestClient.getHttpScheme() + "://" + sparkRestClient.getMasterUrl() + "/v1/submissions/kill/" + submissionId;
         return HttpRequestUtil
                 .executeHttpMethodAndGetResponse(sparkRestClient.getClient(), new HttpPost(url), SparkResponse.class)
                 .getSuccess();
