@@ -36,7 +36,7 @@ public class JobStatusRequestSpecificationImpl implements JobStatusRequestSpecif
     @Override
     public JobStatusResponse withSubmissionIdFullResponse(String submissionId) throws FailedSparkRequestException {
         assertSubmissionId(submissionId);
-        final String url = "http://" + sparkRestClient.getMasterUrl() + "/v1/submissions/status/" + submissionId;
+        final String url = sparkRestClient.getHttpScheme() + "://" + sparkRestClient.getMasterUrl() + "/v1/submissions/status/" + submissionId;
         final JobStatusResponse response = HttpRequestUtil.executeHttpMethodAndGetResponse(sparkRestClient.getClient(), new HttpGet(url),JobStatusResponse.class);
         if (!response.getSuccess()) {
             throw new FailedSparkRequestException("submit was not successful.", response.getDriverState());
