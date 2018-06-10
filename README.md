@@ -78,6 +78,7 @@ a successful finished execution of a job.
 - FAILED
 - ERROR
 - NOT_FOUND
+- RETRYING (Mesos)
 - QUEUED (Mesos)
 
 
